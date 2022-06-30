@@ -7,3 +7,28 @@ date: '2022-06-30'
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
+```{r, message=FALSE}
+# URL for the Online News Popularity Data Folder
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/00332/OnlineNewsPopularity.zip"
+
+# Creates two temporary files
+temp <- tempfile()
+temp2 <- tempfile()
+
+# Downloads the zipped folder from the URL and saves it in temp
+download.file(url, temp)
+
+# Unzips temp and saves it in temp2
+unzip(zipfile = temp, exdir = temp2)
+
+# Reads in the data from temp2 and saves it as data
+data <- readr::read_csv(file.path(temp2, "OnlineNewsPopularity/OnlineNewsPopularity.csv"))
+
+# Unlinks our temporary files
+unlink(c(temp, temp2))
+```
+
+
+
