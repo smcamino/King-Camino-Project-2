@@ -1,0 +1,9 @@
+---
+title: "Project 2"
+author: "Tommy King and Steph Camino"
+date: '2022-06-30'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
