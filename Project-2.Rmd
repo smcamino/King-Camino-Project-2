@@ -9,6 +9,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+# Introduction
+
+# Data
+
 ```{r, message=FALSE}
 # URL for the Online News Popularity Data Folder
 url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/00332/OnlineNewsPopularity.zip"
@@ -27,8 +35,55 @@ unzip(zipfile = temp, exdir = temp2)
 data <- readr::read_csv(file.path(temp2, "OnlineNewsPopularity/OnlineNewsPopularity.csv"))
 
 # Unlinks our temporary files
-unlink(c(temp, temp2))
+unlink(c(temp, temp2), force = TRUE)
+```
+
+```{r}
+# Creates a new dataset "entertainment"
+# Filters data for when the data channel is entertainment
+# Removes Variables that all start with data_channel_is_, url, and timedelta
+# url and timedelta are non-predictive
+entertainment <- data %>% as_tibble() %>%
+  filter(data_channel_is_entertainment == 1) %>%
+  select(-c(url, timedelta, starts_with("data_channel_is_")))
+
+# Creates a new character variable "day" that states what day it is. Derived from the binary variables for each day. 
+# Factors the variable so we can use it as a categorical variable.
+# Orders the factors in the order of the days of the week.
+entertainment$day <- ifelse(entertainment$weekday_is_monday == 1, "Monday",
+                            ifelse(entertainment$weekday_is_tuesday == 1, "Tuesday",
+                                   ifelse(entertainment$weekday_is_wednesday == 1, "Wednesday",
+                                          ifelse(entertainment$weekday_is_thursday == 1, "Thursday",
+                                                 ifelse(entertainment$weekday_is_friday == 1, "Friday",
+                                                        ifelse(entertainment$weekday_is_saturday == 1, "Saturday",
+                                                               ifelse(entertainment$weekday_is_sunday == 1, "Sunday", "NA"))))))) %>%
+                      as.factor() %>% 
+                      ordered(levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+```
+
+# Summarizations
+
+```{r}
+#NOTE! Here I was looking at all of the summary statistics and correlations for the data after removing the binary and categorical variables but it was A LOT
+
+#forSummary <- entertainment %>% select(-c(starts_with("weekday_is_"), is_weekend, day))
+#summary(forSummary)
+#cor(forSummary)
+
+g <- ggplot(entertainment, aes(x = shares))
+g + geom_histogram(binwidth = 5000) 
+
+#max(entertainment$shares)
+
+g2 <- ggplot(entertainment, aes(x = n_tokens_content, y = shares))
+g2 + geom_point()
+
+g3 <- ggplot(entertainment, aes(x = n_tokens_title, y = shares))
+g3 + geom_point()
+
 ```
 
 
+# Modeling
 
+# Comparison
