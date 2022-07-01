@@ -13,7 +13,12 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-# Introduction
+# Introduction  
+  
+For this project, we're going to be taking a look at news article popularity data in the hopes of gaining some insight into the key factors that lead to articles accumulating shares on social media. To start out, we're going to hone in on the Entertainment data channel to do some exploration before automating our process for use with any of the channels. In the Entertainment subset of the data, we'll initially take a look at the variables corresponding to the day of the week an article was published on, as well as the number of words in the title/body of the article and the number of images and videos included.  
+  
+Once we've completed our exploratory analysis, we'll select features that we think would be a good fit in various types of models. We'll compare and evaluate the models we build on several metrics to decide which model provides the most accurate forecasts of article popularity.  
+  
 
 # Data
 
@@ -60,6 +65,7 @@ entertainment$day <- ifelse(entertainment$weekday_is_monday == 1, "Monday",
                       as.factor() %>% 
                       ordered(levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 ```
+  
 
 # Summarizations
 
@@ -81,9 +87,63 @@ g2 + geom_point()
 g3 <- ggplot(entertainment, aes(x = n_tokens_title, y = shares))
 g3 + geom_point()
 
+# Added some new plots for number of images, videos and links vs. shares
+g4 <- ggplot(entertainment, aes(x = num_imgs, y = shares)) + geom_point(color = "Red")
+g5 <- ggplot(entertainment, aes(x = num_videos, y = shares)) + geom_point(color = "Aquamarine")
+g6 <- ggplot(entertainment, aes(x = num_hrefs, y = shares)) + geom_point(color = "Purple")
+
+# We can move this up to where we have all the package info eventually but wanted to put it here for now
+# Can put all of our scatter plots into a single grid so they're all lined up!
+library(gridExtra)
+
+grid.arrange(g, g2, g3, g4, g5, g6, ncol = 3, nrow = 2)
+
+# Looking into plotting some of the distributions of the more obscure variables
+g7 <- ggplot(entertainment, aes(global_subjectivity)) + 
+  geom_density(kernel = "gaussian", color = "Coral", fill = "Coral", alpha = .5)
+
+g8 <- ggplot(entertainment, aes(global_sentiment_polarity)) + 
+  geom_density(kernel = "gaussian", color = "Blue", fill = "Blue", alpha = .5)
+
+g9 <- ggplot(entertainment, aes(global_rate_positive_words)) + 
+  geom_density(kernel = "gaussian", color = "Green", fill = "Green", alpha = .5)
 ```
 
 
-# Modeling
+# Modeling  
+  
+## Train/Test Split  
+  
+The code chunk below splits our data into our training and testing sets using `caret`:  
+  
+```{r}
+# can move this eventually
+library(caret)
+
+set.seed(1024)
+
+train_index <-createDataPartition(entertainment$shares, p = 0.7, list = FALSE)
+
+ent_train <- entertainment[train_index, ]
+ent_test <- entertainment[-train_index, ]
+
+
+```
+  
+## Linear Models  
+  
+```{r steph_model_l}
+```
+
+```{r tommy_model_l}
+```
+  
+## Ensamble Models  
+  
+```{r steph_model_e}
+```
+  
+```{r tommy_model_e}
+```
 
 # Comparison
