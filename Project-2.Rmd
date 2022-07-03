@@ -55,7 +55,8 @@ entertainment <- data %>% as_tibble() %>%
 # Creates a new character variable "day" that states what day it is. Derived from the binary variables for each day. 
 # Factors the variable so we can use it as a categorical variable.
 # Orders the factors in the order of the days of the week.
-entertainment$day <- ifelse(entertainment$weekday_is_monday == 1, "Monday",
+entertainment2 <- entertainment
+entertainment2$day <- ifelse(entertainment$weekday_is_monday == 1, "Monday",
                             ifelse(entertainment$weekday_is_tuesday == 1, "Tuesday",
                                    ifelse(entertainment$weekday_is_wednesday == 1, "Wednesday",
                                           ifelse(entertainment$weekday_is_thursday == 1, "Thursday",
@@ -133,14 +134,27 @@ ent_test <- entertainment[-train_index, ]
 ## Linear Models  
   
 ```{r steph_model_l}
+fitMLR1 <- lm(shares ~ .^2, entertainment)
+summary(fitMLR1)
 ```
 
 ```{r tommy_model_l}
 ```
   
-## Ensamble Models  
+## Ensamble Models 
+
+### Random Forest Model
+
+Random forest is a an ensemble learning method that is an extension of the idea of the bagging method. Like the bagging method, the random forest algorithm uses bagging, also known as bootstrap aggregation, to resample from the data or a fitted model randomly. Then multiple decision trees are created from these samples to create an uncorrelated forest and the results are then averaged. Unlike bagging, random forest doesn't use all of it's predictors but uses a random subset of predictors for each bootstrap sample. If there is a strong predictor, it'll likely be used for every first split in bagging, so randomly subsetting predictors will reduce correlation of tree predictions in random forest models. 
   
 ```{r steph_model_e}
+# Training the Random Forest model with 5 fold cross-validation with center and scaling the data via preprocess, and considering the values of mtry of 1 to 18 with tuneGrid.
+fitRF <- train(shares ~ ., data = ent_train,
+                method = "rf",
+                preProcess = c("center", "scale"),
+                trControl = trainControl(method = "cv", number = 5),
+                tuneGrid = expand.grid(mtry = c(1:round(ncol(entertainment)/3))))
+
 ```
   
 ```{r tommy_model_e}
