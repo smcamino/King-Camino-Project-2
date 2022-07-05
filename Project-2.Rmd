@@ -139,6 +139,11 @@ summary(fitMLR1)
 ```
 
 ```{r tommy_model_l}
+# Will spice up the factors here once we finalize which variables we're using.
+fitMLR2 <- train(shares ~ ., data = ent_train,
+                method = "lm",
+                preProcess = c("center", "scale"),
+                trControl = trainControl(method = "cv", number = 5))
 ```
   
 ## Ensamble Models 
@@ -157,7 +162,21 @@ fitRF <- train(shares ~ ., data = ent_train,
 
 ```
   
+### Boosted Tree Model  
+  
+A boosted tree model is a type of ensemble learning method that functions somewhat similarly to a random forest model but utilizes a technique known as boosting instead of bagging. Boosting as a whole attempts to correct errors created by individual trees in the ensemble method. In this case, the bossting process is iterative and each new decision tree that is made considers errors made by previous trees in order to increase the overall accuracy of the model.  
+  
+
 ```{r tommy_model_e}
+fitBT <- train(shares ~., data = ent_train, method = 'gbm',
+               preProcess = c("center", "scale"),
+               trControl = trainControl(method = "cv", number = 5),
+               verbose = FALSE)
+# Model printout
+fitBT
+
+# Plot hyperparameters
+plot(fitBT)
 ```
 
 # Comparison
