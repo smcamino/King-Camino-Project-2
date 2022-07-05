@@ -70,23 +70,22 @@ entertainment2$day <- ifelse(entertainment$weekday_is_monday == 1, "Monday",
 
 # Summarizations
 
-```{r}
-#NOTE! Here I was looking at all of the summary statistics and correlations for the data after removing the binary and categorical variables but it was A LOT
+```{r plots}
 
-#forSummary <- entertainment %>% select(-c(starts_with("weekday_is_"), is_weekend, day))
-#summary(forSummary)
-#cor(forSummary)
+# Histogram for shares
+g <- ggplot(entertainment, aes(x = shares)) + 
+        geom_histogram(fill = "blue", binwidth = 5000) + 
+        labs(x = "Shares", y = "Count", title = "Histogram of Shares")
 
-g <- ggplot(entertainment, aes(x = shares))
-g + geom_histogram(binwidth = 5000) 
+# Scatterplot for n_tokens_contnt vs shares
+g2 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + 
+          geom_point(color = "Green") + 
+          labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares") 
 
-#max(entertainment$shares)
-
-g2 <- ggplot(entertainment, aes(x = n_tokens_content, y = shares))
-g2 + geom_point()
-
-g3 <- ggplot(entertainment, aes(x = n_tokens_title, y = shares))
-g3 + geom_point()
+# Scatterplot for n_tokens_title vs shares
+g3 <- ggplot(entertainment2, aes(x = n_tokens_title, y = shares)) + 
+          geom_point() + 
+          labs(x = "Number of Words in the Title", y = "Shares", title = "Title Word Count vs Shares") 
 
 # Added some new plots for number of images, videos and links vs. shares
 g4 <- ggplot(entertainment, aes(x = num_imgs, y = shares)) + geom_point(color = "Red")
@@ -97,7 +96,7 @@ g6 <- ggplot(entertainment, aes(x = num_hrefs, y = shares)) + geom_point(color =
 # Can put all of our scatter plots into a single grid so they're all lined up!
 library(gridExtra)
 
-grid.arrange(g, g2, g3, g4, g5, g6, ncol = 3, nrow = 2)
+grid.arrange(g, g2, g3, g4, g5, g6, ncol = 2, nrow = 3)
 
 # Looking into plotting some of the distributions of the more obscure variables
 g7 <- ggplot(entertainment, aes(global_subjectivity)) + 
@@ -108,6 +107,23 @@ g8 <- ggplot(entertainment, aes(global_sentiment_polarity)) +
 
 g9 <- ggplot(entertainment, aes(global_rate_positive_words)) + 
   geom_density(kernel = "gaussian", color = "Green", fill = "Green", alpha = .5)
+
+g10 <- ggplot(entertainment2, aes(x = day, y = shares)) + geom_boxplot(fill = "grey")
+
+g7
+g8
+g9
+g10
+g11 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + geom_point() + facet_wrap(~ day)
+g11
+```
+
+```{r num_summaries}
+#NOTE! Here I was looking at all of the summary statistics and correlations for the data after removing the binary and categorical variables but it was A LOT
+
+#forSummary <- entertainment %>% select(-c(starts_with("weekday_is_"), is_weekend, day))
+#summary(forSummary)
+#cor(forSummary)
 ```
 
 
@@ -135,7 +151,6 @@ ent_test <- entertainment[-train_index, ]
   
 ```{r steph_model_l}
 fitMLR1 <- lm(shares ~ .^2, entertainment)
-summary(fitMLR1)
 ```
 
 ```{r tommy_model_l}
@@ -148,12 +163,13 @@ summary(fitMLR1)
 Random forest is a an ensemble learning method that is an extension of the idea of the bagging method. Like the bagging method, the random forest algorithm uses bagging, also known as bootstrap aggregation, to resample from the data or a fitted model randomly. Then multiple decision trees are created from these samples to create an uncorrelated forest and the results are then averaged. Unlike bagging, random forest doesn't use all of it's predictors but uses a random subset of predictors for each bootstrap sample. If there is a strong predictor, it'll likely be used for every first split in bagging, so randomly subsetting predictors will reduce correlation of tree predictions in random forest models. 
   
 ```{r steph_model_e}
-# Training the Random Forest model with 5 fold cross-validation with center and scaling the data via preprocess, and considering the values of mtry of 1 to 18 with tuneGrid.
+# Training the Random Forest model with 2 fold cross-validation with center and scaling the data via preprocess, and considering the values of mtry of 1 to a third of number of columns in the data with tuneGrid.
 fitRF <- train(shares ~ ., data = ent_train,
                 method = "rf",
                 preProcess = c("center", "scale"),
-                trControl = trainControl(method = "cv", number = 5),
-                tuneGrid = expand.grid(mtry = c(1:round(ncol(entertainment)/3))))
+                trControl = trainControl(method = "cv", number = 2))
+               
+               #tuneGrid = expand.grid(mtry = c(1:round(ncol(entertainment)/3))))
 
 ```
   
