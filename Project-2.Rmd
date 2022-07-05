@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
+library(knitr)
 ```
 
 # Introduction  
@@ -124,6 +125,11 @@ g11
 #forSummary <- entertainment %>% select(-c(starts_with("weekday_is_"), is_weekend, day))
 #summary(forSummary)
 #cor(forSummary)
+
+summary(entertainment$shares)
+
+kable(table(entertainment2$day, entertainment2$n_tokens_title), caption = "Counts for Number of Words in the Title per Day of the Week")
+#kable(table(entertainment2$day, entertainment2$max_positive_polarity), caption = "Counts for Number of Words in the Title per Day of the Week")
 ```
 
 
@@ -156,8 +162,6 @@ fitMLR1 <- train(shares ~ .^2, data = ent_train,
                 method = "lm",
                 preProcess = c("center", "scale"),
                 trControl = trainControl(method = "cv", number = 5))
-
-
 ```
 
 ```{r tommy_model_l}
