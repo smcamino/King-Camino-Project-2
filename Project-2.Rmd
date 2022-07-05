@@ -148,9 +148,16 @@ ent_test <- entertainment[-train_index, ]
 ```
   
 ## Linear Models  
+
+Linear regression fits a linear equation to the data, attempting to model the relationship between two variables, the response and explanatory variables. This equation is most commonly found by using the method of least-squares, which minimizes the sum of squared residuals. These models are usually written as $Y_i = \beta_0 + \beta_1x_{i1}+ ... + \beta_px_{ip} + E_i$.
   
-```{r steph_model_l}
-fitMLR1 <- lm(shares ~ .^2, entertainment)
+```{r steph_model_l, warning = FALSE}
+fitMLR1 <- train(shares ~ .^2, data = ent_train,
+                method = "lm",
+                preProcess = c("center", "scale"),
+                trControl = trainControl(method = "cv", number = 5))
+
+
 ```
 
 ```{r tommy_model_l}
@@ -176,6 +183,11 @@ fitRF <- train(shares ~ ., data = ent_train,
                
                #tuneGrid = expand.grid(mtry = c(1:round(ncol(entertainment)/3))))
 
+# Print out Model
+fitRF
+
+# Plot the hyperparameters
+plot(fitRF)
 ```
   
 ### Boosted Tree Model  
