@@ -108,9 +108,9 @@ g3 <- ggplot(dataSubset2, aes(x = n_tokens_content, y = shares)) +
 
 
 # Added some new plots for number of images, videos and links vs. shares
-g4 <- ggplot(dataSubset, aes(x = num_imgs, y = shares)) + geom_point(color = "Red")
-g5 <- ggplot(dataSubset, aes(x = num_videos, y = shares)) + geom_point(color = "Aquamarine")
-g6 <- ggplot(dataSubset, aes(x = num_hrefs, y = shares)) + geom_point(color = "Purple")
+g4 <- ggplot(dataSubset, aes(x = num_imgs, y = shares)) + geom_point(color = "Red") + labs(x = "Number of Images", y = "Shares", title = "Images vs Shares") 
+g5 <- ggplot(dataSubset, aes(x = num_videos, y = shares)) + geom_point(color = "Aquamarine") + labs(x = "Number of Videos", y = "Shares", title = "Videos vs Shares") 
+g6 <- ggplot(dataSubset, aes(x = num_hrefs, y = shares)) + geom_point(color = "Purple") + labs(x = "Number of Links", y = "Shares", title = "Links vs Shares") 
 
 # We can move this up to where we have all the package info eventually but wanted to put it here for now
 # Can put all of our scatter plots into a single grid so they're all lined up!
@@ -120,13 +120,13 @@ grid.arrange(g, g2, g3, g4, g5, g6, ncol = 2, nrow = 3)
 
 # Looking into plotting some of the distributions of the more obscure variables
 g7 <- ggplot(dataSubset, aes(global_subjectivity)) + 
-  geom_density(kernel = "gaussian", color = "Coral", fill = "Coral", alpha = .5)
+  geom_density(kernel = "gaussian", color = "Coral", fill = "Coral", alpha = .5) + labs(y = "Density", x = "Text Subjectivity", title = "Density Plot: Text Subjectivity") 
 
 g8 <- ggplot(dataSubset, aes(global_sentiment_polarity)) + 
-  geom_density(kernel = "gaussian", color = "Blue", fill = "Blue", alpha = .5)
+  geom_density(kernel = "gaussian", color = "Blue", fill = "Blue", alpha = .5) + labs(y = "Density", x = "Text Sentimental Polarity", title = "Density Plot: Text Sentimental Polarity")
 
 g9 <- ggplot(dataSubset, aes(global_rate_positive_words)) + 
-  geom_density(kernel = "gaussian", color = "Green", fill = "Green", alpha = .5)
+  geom_density(kernel = "gaussian", color = "Green", fill = "Green", alpha = .5) + labs(y = "Density", x = "Rate of Positive Words in the Content", title = "Density plot: Positive Words")
 
 # Plots a Boxplot of number of shares per day of the week
 g10 <- ggplot(dataSubset2, aes(x = day, y = shares)) + 
