@@ -111,6 +111,7 @@ g8 <- ggplot(entertainment, aes(global_sentiment_polarity)) +
 g9 <- ggplot(entertainment, aes(global_rate_positive_words)) + 
   geom_density(kernel = "gaussian", color = "Green", fill = "Green", alpha = .5)
 
+# Plots a Boxplot of number of shares per day of the week
 g10 <- ggplot(entertainment2, aes(x = day, y = shares)) + 
           geom_boxplot(fill = "grey") + 
           labs(x = "Day of the Week", y = "Shares", title = "Boxplot of Shares per Day") +
@@ -118,29 +119,40 @@ g10 <- ggplot(entertainment2, aes(x = day, y = shares)) +
 
 grid.arrange(g7, g8, g9, g10, ncol = 2, nrow = 2)
 
+# Plot for every day of the week for Number of Words in the Content vs Shares
 g11 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + 
           geom_point() + 
           facet_wrap(~ day) + 
-          labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares per Weekday")
+          labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares for Every Day of the Week")
 g11
 ```
 
 ```{r num_summaries}
 
-
+# Calculates the minimum, average, median, maximum, and variance of Shares.
 shareSum <- entertainment %>% summarise(min = min(shares), avg = mean(shares), med = median(shares), max = max(shares), var = var(shares))
 
+# Calculates the minimum, average, median, maximum, and variance of Text Subjectivity. 
+globalSubSum <- entertainment %>% summarise(min = min(global_subjectivity), avg = mean(global_subjectivity), med = median(global_subjectivity), max = max(global_subjectivity), var = var(global_subjectivity))
+
+# Creates vector of summary statistic types.
 word <- c("Minimum", "Average", "Median", "Maximum", "Variance")
 
+# Prints out the summaries for Shares.
 for(i in 1:5){
   print(paste0("The ", word[i], " of Shares is ", shareSum[i]))
 }
 
+# Prints out the summaries for Text Subjectivity.
+for(i in 1:5){
+  print(paste0("The ", word[i], " of Text Subjectivity is ", globalSubSum[i]))
+}
+
+# Creates a Contingency for Number of words in the title and if it's on a weekend or not.
 kable(table(entertainment$is_weekend, entertainment$n_tokens_title), caption = "Counts for Number of Words in the Title for Weekends (0) or Weekdays (1)")
 
-kable(table(entertainment2$day, entertainment2$num_keywords), caption = "Counts for Number of Keyords in the Metadata per Day of the Week")
-
-#kable(table(entertainment2$day, entertainment2$max_positive_polarity), caption = "Counts for Number of Words in the Title per Day of the Week")
+# Creates a Contingency for the Number of Keywords in the Metadata for every day of the week.
+kable(table(entertainment2$day, entertainment2$num_keywords), caption = "Counts for Number of Keywords in the Metadata per Day of the Week")
 ```
 
 
@@ -169,6 +181,7 @@ ent_test <- entertainment[-train_index, ]
 Linear regression fits a linear equation to the data, attempting to model the relationship between two variables, the response and explanatory variables. This equation is most commonly found by using the method of least-squares, which minimizes the sum of squared residuals. These models are usually written as $Y_i = \beta_0 + \beta_1x_{i1}+ ... + \beta_px_{ip} + E_i$.
   
 ```{r steph_model_l, warning = FALSE}
+# Creates a linear regression model with main effects and interaction terms.
 fitMLR1 <- train(shares ~ .^2, data = ent_train,
                 method = "lm",
                 preProcess = c("center", "scale"),
@@ -207,7 +220,7 @@ plot(fitRF)
   
 ### Boosted Tree Model  
   
-A boosted tree model is a type of ensemble learning method that functions somewhat similarly to a random forest model but utilizes a technique known as boosting instead of bagging. Boosting as a whole attempts to correct errors created by individual trees in the ensemble method. In this case, the bossting process is iterative and each new decision tree that is made considers errors made by previous trees in order to increase the overall accuracy of the model.  
+A boosted tree model is a type of ensemble learning method that functions somewhat similarly to a random forest model but utilizes a technique known as boosting instead of bagging. Boosting as a whole attempts to correct errors created by individual trees in the ensemble method. In this case, the boosting process is iterative and each new decision tree that is made considers errors made by previous trees in order to increase the overall accuracy of the model.  
   
 
 ```{r tommy_model_e}
@@ -223,3 +236,36 @@ plot(fitBT)
 ```
 
 # Comparison
+
+```{r comparisons, warning = FALSE}
+
+# Predicts Shares using the models and test data
+predFitMLR1 <- predict(fitMLR1, newdata = ent_test)
+predFitMLR2 <- predict(fitMLR2, newdata = ent_test)
+predFitRF <- predict(fitRF, newdata = ent_test)
+predFitBT <- predict(fitBT, newdata = ent_test)
+
+# Compares the predicted shares found above to the shares in the test dataset
+postMLR1 <- postResample(predFitMLR1, obs = ent_test$shares)
+postMLR2 <- postResample(predFitMLR2, obs = ent_test$shares)
+postRF <- postResample(predFitRF, obs = ent_test$shares)
+postBT <- postResample(predFitBT, obs = ent_test$shares)
+
+# Creates the names of the different models 
+modelNames <- c("Interaction and Main Effects Model", "Main Effects Model", "Random Forest Model", "Boosting Tree Model")
+
+# row binds the post comparisons and makes it a dataframe
+try <- rbind(postMLR1, postMLR2, postRF, postBT) %>% data.frame()
+
+# Changes the row names to the names of the different models created above
+rownames(try) <- modelNames
+
+# Chooses the winner of the models by finding minimum RMSE
+winner <- try %>% filter(RMSE == min(RMSE))
+
+# Prints out the minimum
+print(paste0("The winning model is the ", rownames(winner)))
+```
+
+
+
