@@ -78,15 +78,17 @@ g <- ggplot(entertainment, aes(x = shares)) +
         geom_histogram(fill = "blue", binwidth = 5000) + 
         labs(x = "Shares", y = "Count", title = "Histogram of Shares")
 
+# Scatterplot for n_tokens_title vs shares
+g2 <- ggplot(entertainment2, aes(x = n_tokens_title, y = shares)) + 
+          geom_point() + 
+          labs(x = "Number of Words in the Title", y = "Shares", title = "Title Word Count vs Shares") 
+
 # Scatterplot for n_tokens_contnt vs shares
-g2 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + 
+g3 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + 
           geom_point(color = "Green") + 
           labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares") 
 
-# Scatterplot for n_tokens_title vs shares
-g3 <- ggplot(entertainment2, aes(x = n_tokens_title, y = shares)) + 
-          geom_point() + 
-          labs(x = "Number of Words in the Title", y = "Shares", title = "Title Word Count vs Shares") 
+
 
 # Added some new plots for number of images, videos and links vs. shares
 g4 <- ggplot(entertainment, aes(x = num_imgs, y = shares)) + geom_point(color = "Red")
@@ -109,26 +111,35 @@ g8 <- ggplot(entertainment, aes(global_sentiment_polarity)) +
 g9 <- ggplot(entertainment, aes(global_rate_positive_words)) + 
   geom_density(kernel = "gaussian", color = "Green", fill = "Green", alpha = .5)
 
-g10 <- ggplot(entertainment2, aes(x = day, y = shares)) + geom_boxplot(fill = "grey")
+g10 <- ggplot(entertainment2, aes(x = day, y = shares)) + 
+          geom_boxplot(fill = "grey") + 
+          labs(x = "Day of the Week", y = "Shares", title = "Boxplot of Shares per Day") +
+          scale_x_discrete(labels = c("Monday" = "Mon", "Tuesday" = "Tue", "Wednesday" = "Wed", "Thursday" = "Thu", "Friday" = "Fri", "Saturday" = "Sat", "Sunday" = "Sun"))
 
-g7
-g8
-g9
-g10
-g11 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + geom_point() + facet_wrap(~ day)
+grid.arrange(g7, g8, g9, g10, ncol = 2, nrow = 2)
+
+g11 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + 
+          geom_point() + 
+          facet_wrap(~ day) + 
+          labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares per Weekday")
 g11
 ```
 
 ```{r num_summaries}
-#NOTE! Here I was looking at all of the summary statistics and correlations for the data after removing the binary and categorical variables but it was A LOT
 
-#forSummary <- entertainment %>% select(-c(starts_with("weekday_is_"), is_weekend, day))
-#summary(forSummary)
-#cor(forSummary)
 
-summary(entertainment$shares)
+shareSum <- entertainment %>% summarise(min = min(shares), avg = mean(shares), med = median(shares), max = max(shares), var = var(shares))
 
-kable(table(entertainment2$day, entertainment2$n_tokens_title), caption = "Counts for Number of Words in the Title per Day of the Week")
+word <- c("Minimum", "Average", "Median", "Maximum", "Variance")
+
+for(i in 1:5){
+  print(paste0("The ", word[i], " of Shares is ", shareSum[i]))
+}
+
+kable(table(entertainment$is_weekend, entertainment$n_tokens_title), caption = "Counts for Number of Words in the Title for Weekends (0) or Weekdays (1)")
+
+kable(table(entertainment2$day, entertainment2$num_keywords), caption = "Counts for Number of Keyords in the Metadata per Day of the Week")
+
 #kable(table(entertainment2$day, entertainment2$max_positive_polarity), caption = "Counts for Number of Words in the Title per Day of the Week")
 ```
 
