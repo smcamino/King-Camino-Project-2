@@ -2,6 +2,8 @@
 title: "Project 2"
 author: "Tommy King and Steph Camino"
 date: '2022-06-30'
+params:
+  data_channel: "entertainment"
 ---
 
 ```{r setup, include=FALSE}
@@ -265,6 +267,22 @@ winner <- try %>% filter(RMSE == min(RMSE))
 
 # Prints out the minimum
 print(paste0("The winning model is the ", rownames(winner)))
+```  
+  
+# Automation  
+  
+```{r automation}
+
+channels <- as.vector(c("lifestyle", "entertainment","bus","socmed","tech","world"))
+
+output_files <- paste0(channels, ".html")
+
+params = lapply(channels, FUN = function(x){list(channel = x)})
+
+reports <- tibble(output_files, params)
+
+library(purrr)
+pwalk(reports, rmarkdown::render, input="Project-2.Rmd")
 ```
 
 
