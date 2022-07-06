@@ -63,24 +63,24 @@ unlink(c(temp, temp2), force = TRUE)
 
 ```{r}
 # Creates a new dataset "entertainment"
-# Filters data for when the data channel is entertainment
+# Filters data for when the data channel is chosen
 # Removes Variables that all start with data_channel_is_, url, and timedelta
 # url and timedelta are non-predictive
-entertainment <- data %>% as_tibble() %>%
+dataSubset <- data %>% as_tibble() %>%
   filter(data_channel_is_entertainment == 1) %>%
   select(-c(url, timedelta, starts_with("data_channel_is_")))
 
 # Creates a new character variable "day" that states what day it is. Derived from the binary variables for each day. 
 # Factors the variable so we can use it as a categorical variable.
 # Orders the factors in the order of the days of the week.
-entertainment2 <- entertainment
-entertainment2$day <- ifelse(entertainment$weekday_is_monday == 1, "Monday",
-                            ifelse(entertainment$weekday_is_tuesday == 1, "Tuesday",
-                                   ifelse(entertainment$weekday_is_wednesday == 1, "Wednesday",
-                                          ifelse(entertainment$weekday_is_thursday == 1, "Thursday",
-                                                 ifelse(entertainment$weekday_is_friday == 1, "Friday",
-                                                        ifelse(entertainment$weekday_is_saturday == 1, "Saturday",
-                                                               ifelse(entertainment$weekday_is_sunday == 1, "Sunday", "NA"))))))) %>%
+dataSubset2 <- dataSubset
+dataSubset2$day <- ifelse(dataSubset$weekday_is_monday == 1, "Monday",
+                            ifelse(dataSubset$weekday_is_tuesday == 1, "Tuesday",
+                                   ifelse(dataSubset$weekday_is_wednesday == 1, "Wednesday",
+                                          ifelse(dataSubset$weekday_is_thursday == 1, "Thursday",
+                                                 ifelse(dataSubset$weekday_is_friday == 1, "Friday",
+                                                        ifelse(dataSubset$weekday_is_saturday == 1, "Saturday",
+                                                               ifelse(dataSubset$weekday_is_sunday == 1, "Sunday", "NA"))))))) %>%
                       as.factor() %>% 
                       ordered(levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 ```
@@ -91,26 +91,26 @@ entertainment2$day <- ifelse(entertainment$weekday_is_monday == 1, "Monday",
 ```{r plots}
 
 # Histogram for shares
-g <- ggplot(entertainment, aes(x = shares)) + 
+g <- ggplot(dataSubset, aes(x = shares)) + 
         geom_histogram(fill = "blue", binwidth = 5000) + 
         labs(x = "Shares", y = "Count", title = "Histogram of Shares")
 
 # Scatterplot for n_tokens_title vs shares
-g2 <- ggplot(entertainment2, aes(x = n_tokens_title, y = shares)) + 
+g2 <- ggplot(dataSubset2, aes(x = n_tokens_title, y = shares)) + 
           geom_point() + 
           labs(x = "Number of Words in the Title", y = "Shares", title = "Title Word Count vs Shares") 
 
-# Scatterplot for n_tokens_contnt vs shares
-g3 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + 
+# Scatterplot for n_tokens_content vs shares
+g3 <- ggplot(dataSubset2, aes(x = n_tokens_content, y = shares)) + 
           geom_point(color = "Green") + 
           labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares") 
 
 
 
 # Added some new plots for number of images, videos and links vs. shares
-g4 <- ggplot(entertainment, aes(x = num_imgs, y = shares)) + geom_point(color = "Red")
-g5 <- ggplot(entertainment, aes(x = num_videos, y = shares)) + geom_point(color = "Aquamarine")
-g6 <- ggplot(entertainment, aes(x = num_hrefs, y = shares)) + geom_point(color = "Purple")
+g4 <- ggplot(dataSubset, aes(x = num_imgs, y = shares)) + geom_point(color = "Red")
+g5 <- ggplot(dataSubset, aes(x = num_videos, y = shares)) + geom_point(color = "Aquamarine")
+g6 <- ggplot(dataSubset, aes(x = num_hrefs, y = shares)) + geom_point(color = "Purple")
 
 # We can move this up to where we have all the package info eventually but wanted to put it here for now
 # Can put all of our scatter plots into a single grid so they're all lined up!
@@ -119,17 +119,17 @@ library(gridExtra)
 grid.arrange(g, g2, g3, g4, g5, g6, ncol = 2, nrow = 3)
 
 # Looking into plotting some of the distributions of the more obscure variables
-g7 <- ggplot(entertainment, aes(global_subjectivity)) + 
+g7 <- ggplot(dataSubset, aes(global_subjectivity)) + 
   geom_density(kernel = "gaussian", color = "Coral", fill = "Coral", alpha = .5)
 
-g8 <- ggplot(entertainment, aes(global_sentiment_polarity)) + 
+g8 <- ggplot(dataSubset, aes(global_sentiment_polarity)) + 
   geom_density(kernel = "gaussian", color = "Blue", fill = "Blue", alpha = .5)
 
-g9 <- ggplot(entertainment, aes(global_rate_positive_words)) + 
+g9 <- ggplot(dataSubset, aes(global_rate_positive_words)) + 
   geom_density(kernel = "gaussian", color = "Green", fill = "Green", alpha = .5)
 
 # Plots a Boxplot of number of shares per day of the week
-g10 <- ggplot(entertainment2, aes(x = day, y = shares)) + 
+g10 <- ggplot(dataSubset2, aes(x = day, y = shares)) + 
           geom_boxplot(fill = "grey") + 
           labs(x = "Day of the Week", y = "Shares", title = "Boxplot of Shares per Day") +
           scale_x_discrete(labels = c("Monday" = "Mon", "Tuesday" = "Tue", "Wednesday" = "Wed", "Thursday" = "Thu", "Friday" = "Fri", "Saturday" = "Sat", "Sunday" = "Sun"))
@@ -137,7 +137,7 @@ g10 <- ggplot(entertainment2, aes(x = day, y = shares)) +
 grid.arrange(g7, g8, g9, g10, ncol = 2, nrow = 2)
 
 # Plot for every day of the week for Number of Words in the Content vs Shares
-g11 <- ggplot(entertainment2, aes(x = n_tokens_content, y = shares)) + 
+g11 <- ggplot(dataSubset2, aes(x = n_tokens_content, y = shares)) + 
           geom_point() + 
           facet_wrap(~ day) + 
           labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares for Every Day of the Week")
@@ -147,10 +147,10 @@ g11
 ```{r num_summaries}
 
 # Calculates the minimum, average, median, maximum, and variance of Shares.
-shareSum <- entertainment %>% summarise(min = min(shares), avg = mean(shares), med = median(shares), max = max(shares), var = var(shares))
+shareSum <- dataSubset %>% summarise(min = min(shares), avg = mean(shares), med = median(shares), max = max(shares), var = var(shares))
 
 # Calculates the minimum, average, median, maximum, and variance of Text Subjectivity. 
-globalSubSum <- entertainment %>% summarise(min = min(global_subjectivity), avg = mean(global_subjectivity), med = median(global_subjectivity), max = max(global_subjectivity), var = var(global_subjectivity))
+globalSubSum <- dataSubset %>% summarise(min = min(global_subjectivity), avg = mean(global_subjectivity), med = median(global_subjectivity), max = max(global_subjectivity), var = var(global_subjectivity))
 
 # Creates vector of summary statistic types.
 word <- c("Minimum", "Average", "Median", "Maximum", "Variance")
@@ -166,10 +166,10 @@ for(i in 1:5){
 }
 
 # Creates a Contingency for Number of words in the title and if it's on a weekend or not.
-kable(table(entertainment$is_weekend, entertainment$n_tokens_title), caption = "Counts for Number of Words in the Title for Weekends (0) or Weekdays (1)")
+kable(table(dataSubset$is_weekend, dataSubset$n_tokens_title), caption = "Counts for Number of Words in the Title for Weekends (0) or Weekdays (1)")
 
 # Creates a Contingency for the Number of Keywords in the Metadata for every day of the week.
-kable(table(entertainment2$day, entertainment2$num_keywords), caption = "Counts for Number of Keywords in the Metadata per Day of the Week")
+kable(table(dataSubset2$day, dataSubset2$num_keywords), caption = "Counts for Number of Keywords in the Metadata per Day of the Week")
 ```
 
 
@@ -185,10 +185,10 @@ library(caret)
 
 set.seed(1024)
 
-train_index <-createDataPartition(entertainment$shares, p = 0.7, list = FALSE)
+train_index <- createDataPartition(dataSubset$shares, p = 0.7, list = FALSE)
 
-ent_train <- entertainment[train_index, ]
-ent_test <- entertainment[-train_index, ]
+train <- dataSubset[train_index, ]
+test <- dataSubset[-train_index, ]
 
 
 ```
@@ -199,7 +199,7 @@ Linear regression fits a linear equation to the data, attempting to model the re
   
 ```{r steph_model_l, warning = FALSE}
 # Creates a linear regression model with main effects and interaction terms.
-fitMLR1 <- train(shares ~ .^2, data = ent_train,
+fitMLR1 <- train(shares ~ .^2, data = train,
                 method = "lm",
                 preProcess = c("center", "scale"),
                 trControl = trainControl(method = "cv", number = 5))
@@ -207,7 +207,7 @@ fitMLR1 <- train(shares ~ .^2, data = ent_train,
 
 ```{r tommy_model_l}
 # Will spice up the factors here once we finalize which variables we're using.
-fitMLR2 <- train(shares ~ ., data = ent_train,
+fitMLR2 <- train(shares ~ ., data = train,
                 method = "lm",
                 preProcess = c("center", "scale"),
                 trControl = trainControl(method = "cv", number = 5))
@@ -221,12 +221,12 @@ Random forest is a an ensemble learning method that is an extension of the idea 
   
 ```{r steph_model_e}
 # Training the Random Forest model with 2 fold cross-validation with center and scaling the data via preprocess, and considering the values of mtry of 1 to a third of number of columns in the data with tuneGrid.
-fitRF <- train(shares ~ ., data = ent_train,
+fitRF <- train(shares ~ ., data = train,
                 method = "rf",
                 preProcess = c("center", "scale"),
                 trControl = trainControl(method = "cv", number = 2))
                
-               #tuneGrid = expand.grid(mtry = c(1:round(ncol(entertainment)/3))))
+               #tuneGrid = expand.grid(mtry = c(1:round(ncol(dataSubset)/3))))
 
 # Print out Model
 fitRF
@@ -241,7 +241,7 @@ A boosted tree model is a type of ensemble learning method that functions somewh
   
 
 ```{r tommy_model_e}
-fitBT <- train(shares ~., data = ent_train, method = 'gbm',
+fitBT <- train(shares ~., data = train, method = 'gbm',
                preProcess = c("center", "scale"),
                trControl = trainControl(method = "cv", number = 5),
                verbose = FALSE)
@@ -257,16 +257,16 @@ plot(fitBT)
 ```{r comparisons, warning = FALSE}
 
 # Predicts Shares using the models and test data
-predFitMLR1 <- predict(fitMLR1, newdata = ent_test)
-predFitMLR2 <- predict(fitMLR2, newdata = ent_test)
-predFitRF <- predict(fitRF, newdata = ent_test)
-predFitBT <- predict(fitBT, newdata = ent_test)
+predFitMLR1 <- predict(fitMLR1, newdata = test)
+predFitMLR2 <- predict(fitMLR2, newdata = test)
+predFitRF <- predict(fitRF, newdata = test)
+predFitBT <- predict(fitBT, newdata = test)
 
 # Compares the predicted shares found above to the shares in the test dataset
-postMLR1 <- postResample(predFitMLR1, obs = ent_test$shares)
-postMLR2 <- postResample(predFitMLR2, obs = ent_test$shares)
-postRF <- postResample(predFitRF, obs = ent_test$shares)
-postBT <- postResample(predFitBT, obs = ent_test$shares)
+postMLR1 <- postResample(predFitMLR1, obs = test$shares)
+postMLR2 <- postResample(predFitMLR2, obs = test$shares)
+postRF <- postResample(predFitRF, obs = test$shares)
+postBT <- postResample(predFitBT, obs = test$shares)
 
 # Creates the names of the different models 
 modelNames <- c("Interaction and Main Effects Model", "Main Effects Model", "Random Forest Model", "Boosting Tree Model")
