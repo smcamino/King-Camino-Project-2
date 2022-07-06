@@ -273,13 +273,13 @@ print(paste0("The winning model is the ", rownames(winner)))
   
 ```{r automation}
 
-channels <- as.vector(c("lifestyle", "entertainment","bus","socmed","tech","world"))
+channels <- data.frame(c("lifestyle","entertainment","bus","socmed","tech","world"))
 
 output_files <- paste0(channels, ".html")
 
-params = lapply(channels, FUN = function(x){list(channel = x)})
+params_reports = lapply(channels, FUN = function(x){list(x)})
 
-reports <- tibble(output_files, params)
+reports <- tibble(output_files, params_reports)
 
 library(purrr)
 pwalk(reports, rmarkdown::render, input="Project-2.Rmd")
