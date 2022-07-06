@@ -4,6 +4,21 @@ author: "Tommy King and Steph Camino"
 date: '2022-06-30'
 ---
 
+
+```{r, eval=FALSE}
+
+renderReport <- function(type){
+  rmarkdown::render("Project2.Rmd",
+                    params = list(type = type),
+                    output_format = "github_document",
+                    output_options = list(html_preview = FALSE),
+                    output_file = paste0("Project2-", type, ".html")
+                    )
+}
+
+```
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
