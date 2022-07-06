@@ -6,21 +6,6 @@ params:
   data_channel: "entertainment"
 ---
 
-
-```{r, eval=FALSE}
-
-renderReport <- function(type){
-  rmarkdown::render("Project2.Rmd",
-                    params = list(type = type),
-                    output_format = "github_document",
-                    output_options = list(html_preview = FALSE),
-                    output_file = paste0("Project2-", type, ".html")
-                    )
-}
-
-```
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -88,6 +73,32 @@ dataSubset2$day <- ifelse(dataSubset$weekday_is_monday == 1, "Monday",
 
 # Summarizations
 
+* The first set of plots:   
+
+  * When you look at the first set of plots, the plot in the upper left hand corner is a histogram of shares. Here you can see the distribution of the response variable. Look out for potential skewness and potential outliers.  
+
+  * The plot in the upper right hand corner is a scatterplot for number of words in the title versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+
+  * The next plot is the middle left, it is a scatterplot of the number of words in the content versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+
+  * The middle right plot is a scatterplot of number of images versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+
+  * The scatterplot of number of videos versus number of shares it got is in the bottom lefthand corner. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+
+  * The scatterplot in the bottom righthand corner is the number of links versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+
+* The second set of plots:  
+
+  * In the upper lefthand corner is a density plot of text subjectivity. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
+  
+  * In the upper righthand corner is a density plot of text sentimental polarity. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
+  
+  * In the lower lefthand corner is a densit plot of the rate of positive words in the content. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
+  
+* The final image:  
+
+  * Here you can see a scatterplot for each day of the week of Number of words in the number of words in the content and number of shares it got. If there are big differences across the plots there may be an interaction effect between day of the week and number of words in the content. 
+
 ```{r plots}
 
 # Histogram for shares
@@ -144,13 +155,11 @@ g11 <- ggplot(dataSubset2, aes(x = n_tokens_content, y = shares)) +
 g11
 ```
 
-```{r num_summaries}
+Below is a numerical summary for the response variable, number of shares. Here you can see the minimum, average, median, maximum, and variance. Here you can see the spread of the data and if the data is skewed, if the average and median are drastically different. 
 
+```{r}
 # Calculates the minimum, average, median, maximum, and variance of Shares.
 shareSum <- dataSubset %>% summarise(min = min(shares), avg = mean(shares), med = median(shares), max = max(shares), var = var(shares))
-
-# Calculates the minimum, average, median, maximum, and variance of Text Subjectivity. 
-globalSubSum <- dataSubset %>% summarise(min = min(global_subjectivity), avg = mean(global_subjectivity), med = median(global_subjectivity), max = max(global_subjectivity), var = var(global_subjectivity))
 
 # Creates vector of summary statistic types.
 word <- c("Minimum", "Average", "Median", "Maximum", "Variance")
@@ -159,15 +168,30 @@ word <- c("Minimum", "Average", "Median", "Maximum", "Variance")
 for(i in 1:5){
   print(paste0("The ", word[i], " of Shares is ", shareSum[i]))
 }
+```
+
+Below is a numerical summary for test subjectivity. Here you can see the minimum, average, median, maximum, and variance. Here you can see the spread of the data and if the data is skewed, if the average and median are drastically different. 
+
+```{r}
+# Calculates the minimum, average, median, maximum, and variance of Text Subjectivity. 
+globalSubSum <- dataSubset %>% summarise(min = min(global_subjectivity), avg = mean(global_subjectivity), med = median(global_subjectivity), max = max(global_subjectivity), var = var(global_subjectivity))
 
 # Prints out the summaries for Text Subjectivity.
 for(i in 1:5){
   print(paste0("The ", word[i], " of Text Subjectivity is ", globalSubSum[i]))
 }
+```
 
+Below is a contingency table for the number of words in the title and if it was on a weekend or weekday. Here you can see the relationship between these two categorical variables.
+
+```{r}
 # Creates a Contingency for Number of words in the title and if it's on a weekend or not.
 kable(table(dataSubset$is_weekend, dataSubset$n_tokens_title), caption = "Counts for Number of Words in the Title for Weekends (0) or Weekdays (1)")
+```
 
+Below is a contingency table for the number of keywords in the metadata and the day of the week. Here you can see the relationship between these two categorical variables.
+
+```{r num_summaries}
 # Creates a Contingency for the Number of Keywords in the Metadata for every day of the week.
 kable(table(dataSubset2$day, dataSubset2$num_keywords), caption = "Counts for Number of Keywords in the Metadata per Day of the Week")
 ```
@@ -298,6 +322,21 @@ reports <- tibble(output_files, params_reports)
 
 library(purrr)
 pwalk(reports, rmarkdown::render, input="Project-2.Rmd")
+```
+
+```{r, eval=FALSE}
+# Hey! I found this render code on the internet and modified it. When we run this in the console, we can specify type (like entertainment, lifestyle, etc.) and then we can create a variable in the code and use that to subset. This way it'll create a new output html for every type. You don't have to use it if you don't want to, just an idea!
+
+
+renderReport <- function(type){
+  rmarkdown::render("Project2.Rmd",
+                    params = list(type = type),
+                    output_format = "github_document",
+                    output_options = list(html_preview = FALSE),
+                    output_file = paste0("Project2-", type, ".html")
+                    )
+}
+
 ```
 
 
