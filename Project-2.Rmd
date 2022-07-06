@@ -325,7 +325,7 @@ pwalk(reports, rmarkdown::render, input="Project-2.Rmd")
 ```
 
 ```{r, eval=FALSE}
-# Hey! I found this render code on the internet and modified it. When we run this in the console, we can specify type (like entertainment, lifestyle, etc.) and then we can create a variable in the code and use that to subset. This way it'll create a new output html for every type. You don't have to use it if you don't want to, just an idea!
+# Hey! I saw your render code in gitHub and thought I would make some additions. the output_file will create a new output html for every type we enter in. You don't have to use it if you don't want to, just an idea! Also, I think the render function will end up going in our README.
 
 
 renderReport <- function(type){
