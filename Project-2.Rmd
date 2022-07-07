@@ -77,25 +77,25 @@ dataSubset2$day <- ifelse(dataSubset$weekday_is_monday == 1, "Monday",
 
 * The first set of plots:   
 
-  * When you look at the first set of plots, the plot in the upper left hand corner is a histogram of shares. Here you can see the distribution of the response variable. Look out for potential skewness and potential outliers.  
+  * When you look at the first set of plots, the plot in the upper left-hand corner is a histogram of shares. Here you can see the distribution of the response variable. Look out for potential skewness and potential outliers.  
 
-  * The plot in the upper right hand corner is a scatterplot for number of words in the title versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+  * The plot in the upper right-hand corner is a scatterplot for number of words in the title versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
 
   * The next plot is the middle left, it is a scatterplot of the number of words in the content versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
 
   * The middle right plot is a scatterplot of number of images versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
 
-  * The scatterplot of number of videos versus number of shares it got is in the bottom lefthand corner. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+  * The scatterplot of number of videos versus number of shares it got is in the bottom left-hand corner. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
 
-  * The scatterplot in the bottom righthand corner is the number of links versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
+  * The scatterplot in the bottom right-hand corner is the number of links versus the number of shares it got. Here you can look at the relationship between the two variables. Watch out for any potential transformations that need to be made when modeling your linear regression models.  
 
 * The second set of plots:  
 
-  * In the upper lefthand corner is a density plot of text subjectivity. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
+  * In the upper left-hand corner is a density plot of text subjectivity. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
   
-  * In the upper righthand corner is a density plot of text sentimental polarity. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
+  * In the upper right-hand corner is a density plot of text sentimental polarity. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
   
-  * In the lower lefthand corner is a densit plot of the rate of positive words in the content. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
+  * In the lower left-hand corner is a density plot of the rate of positive words in the content. Here a kernel density estimate was used to show the probability density function of the variable. Look out for potential skewness and potential data distributions here.   
   
 * The final image:  
 
