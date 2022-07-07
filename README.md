@@ -17,17 +17,32 @@ In this repo you will find code for this project in the Project-2.Rmd file. The 
 * [`Knitr`](https://cran.r-project.org/web/packages/knitr/index.html): This package was used to present tables nicely and to render the .Rmd file. 
 * [`GridExtra`](https://cran.r-project.org/web/packages/gridExtra/index.html): This package was used to display plots neatly and nicely.
 * [`Caret`](https://cran.r-project.org/web/packages/caret/index.html): This package was used to create our regression and classification models. 
+* [`randomForest`](https://cran.r-project.org/web/packages/randomForest/index.html): This package was used as an add-on to `caret` for our random forest model. 
+* [`gbm`](https://cran.r-project.org/web/packages/gbm/index.html): This package was used as an add-on to `caret` for our boosted tree model.
 
 
 ## The links to the generated anaysis for each data channel is written below:  
 
-* [Lifestyle]()
-* [Entertainment]()
-* [Business]()
-* [Social Media]()
-* [Tech]()
-* [World]()
+* [Lifestyle](Project2-lifestyle.md)
+* [Entertainment](Project2-entertainment.md)
+* [Business](Project2-bus.md)
+* [Social Media](Project2-socmed.md)
+* [Tech](Project2-tech.md)
+* [World](Project2-world.md)
 
 ## Render Code
 
+`renderReport <- function(type){`  
+ &emsp; &emsp; `rmarkdown::render("Project-2.Rmd",`  
+ &emsp; &emsp; &emsp; `params = list(type = type),`  
+ &emsp; &emsp; &emsp; `output_format = "github_document",`  
+ &emsp; &emsp; &emsp; `output_options = list(html_preview = FALSE),`  
+ &emsp; &emsp; &emsp; `output_file = paste0("Project2-", type, ".md")`  
+ &emsp; &emsp; &emsp; `)`  
+`}`
 
+`channels <- c("lifestyle","entertainment","bus","socmed","tech","world")` 
+
+`for(c in channels){`  
+&emsp; `renderReport(c)`  
+`}`

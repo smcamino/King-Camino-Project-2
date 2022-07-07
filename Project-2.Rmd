@@ -3,7 +3,7 @@ title: "Project 2"
 author: "Tommy King and Steph Camino"
 date: '2022-06-30'
 params:
-  data_channel: "entertainment"
+  type: "entertainment"
 ---
 
 ```{r setup, include=FALSE}
@@ -53,8 +53,13 @@ unlink(c(temp, temp2), force = TRUE)
 # Filters data for when the data channel is chosen
 # Removes Variables that all start with data_channel_is_, url, and timedelta
 # url and timedelta are non-predictive
+
+# Added this variable for automation purposes
+channel_selection <- paste0("data_channel_is_", params$type)
+
+# Changed to our channel selection variable here
 dataSubset <- data %>% as_tibble() %>%
-  filter(data_channel_is_entertainment == 1) %>%
+  filter(!!as.symbol(channel_selection) == 1) %>%
   select(-c(url, timedelta, starts_with("data_channel_is_")))
 
 # Creates a new character variable "day" that states what day it is. Derived from the binary variables for each day. 
@@ -208,17 +213,12 @@ kable(table(dataSubset2$day, dataSubset2$num_keywords), caption = "Counts for Nu
 The code chunk below splits our data into our training and testing sets using `caret`:  
   
 ```{r}
-# can move this eventually
-library(caret)
-
 set.seed(1024)
 
 train_index <- createDataPartition(dataSubset$shares, p = 0.7, list = FALSE)
 
 train <- dataSubset[train_index, ]
 test <- dataSubset[-train_index, ]
-
-
 ```
   
 ## Linear Models  
@@ -249,6 +249,7 @@ Random forest is a an ensemble learning method that is an extension of the idea 
   
 ```{r steph_model_e}
 # Training the Random Forest model with 2 fold cross-validation with center and scaling the data via preprocess, and considering the values of mtry of 1 to a third of number of columns in the data with tuneGrid.
+library(randomForest)
 fitRF <- train(shares ~ ., data = train,
                 method = "rf",
                 preProcess = c("center", "scale"),
@@ -265,13 +266,16 @@ plot(fitRF)
   
 ### Boosted Tree Model  
   
-A boosted tree model is a type of ensemble learning method that functions somewhat similarly to a random forest model but utilizes a technique known as boosting instead of bagging. Boosting as a whole attempts to correct errors created by individual trees in the ensemble method. In this case, the boosting process is iterative and each new decision tree that is made considers errors made by previous trees in order to increase the overall accuracy of the model.  
+A boosted tree model is a type of ensemble learning method that functions somewhat similarly to a random forest model but utilizes a technique known as boosting instead of bagging. Boosting as a whole attempts to correct errors created by individual trees in the ensemble method. In this case, the boosting process is iterative and each new decision tree that is made considers errors made by previous trees in order to increase the overall accuracy of the model. We're making use of several tuning parameters here during the model building process. 
   
 
 ```{r tommy_model_e}
+library(gbm)
 fitBT <- train(shares ~., data = train, method = 'gbm',
                preProcess = c("center", "scale"),
-               trControl = trainControl(method = "cv", number = 5),
+               trControl = trainControl(method = "cv", number = 2),
+               tuneGrid = expand.grid(n.trees = c(25,50,100,150), interaction.depth = c(1,2,3,4),
+                                      shrinkage = 0.1, n.minobsinnode = 10),
                verbose = FALSE)
 # Model printout
 fitBT
@@ -312,36 +316,6 @@ winner <- try %>% filter(RMSE == min(RMSE))
 print(paste0("The winning model is the ", rownames(winner)))
 ```  
   
-# Automation  
-  
-```{r automation}
-
-channels <- data.frame(c("lifestyle","entertainment","bus","socmed","tech","world"))
-
-output_files <- paste0(channels, ".html")
-
-params_reports = lapply(channels, FUN = function(x){list(x)})
-
-reports <- tibble(output_files, params_reports)
-
-library(purrr)
-pwalk(reports, rmarkdown::render, input="Project-2.Rmd")
-```
-
-```{r, eval=FALSE}
-# Hey! I saw your render code in gitHub and thought I would make some additions. the output_file will create a new output html for every type we enter in. You don't have to use it if you don't want to, just an idea! Also, I think the render function will end up going in our README.
-
-
-renderReport <- function(type){
-  rmarkdown::render("Project2.Rmd",
-                    params = list(type = type),
-                    output_format = "github_document",
-                    output_options = list(html_preview = FALSE),
-                    output_file = paste0("Project2-", type, ".html")
-                    )
-}
-
-```
 
 
 
