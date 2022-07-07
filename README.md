@@ -32,17 +32,17 @@ In this repo you will find code for this project in the Project-2.Rmd file. The 
 
 ## Render Code
 
-renderReport <- function(type){
-  rmarkdown::render("Project-2.Rmd",
-                    params = list(type = type),
-                    output_format = "github_document",
-                    output_options = list(html_preview = FALSE),
-                    output_file = paste0("Project2-", type, ".md")
-                    )
-}
+`renderReport <- function(type){`  
+ &emsp; &emsp; `rmarkdown::render("Project-2.Rmd",`  
+ &emsp; &emsp; &emsp; `params = list(type = type),`  
+ &emsp; &emsp; &emsp; `output_format = "github_document",`  
+ &emsp; &emsp; &emsp; `output_options = list(html_preview = FALSE),`  
+ &emsp; &emsp; &emsp; `output_file = paste0("Project2-", type, ".md")`  
+ &emsp; &emsp; &emsp; `)`  
+`}`
 
-channels <- c("lifestyle","entertainment","bus","socmed","tech","world")
+`channels <- c("lifestyle","entertainment","bus","socmed","tech","world")` 
 
-for(c in channels){
-  renderReport(c)
-}
+`for(c in channels){`  
+&emsp; `renderReport(c)`  
+`}`
