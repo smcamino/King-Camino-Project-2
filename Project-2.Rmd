@@ -22,7 +22,7 @@ library(gbm)
 
 # Introduction  
   
-For this project, we're going to be taking a look at news article popularity data in the hopes of gaining some insight into the key factors that lead to articles accumulating shares on social media. To start out, we're going to hone in on the Entertainment data channel to do some exploration before automating our process for use with any of the channels. In the Entertainment subset of the data, we'll initially take a look at the variables corresponding to the day of the week an article was published on, as well as the number of words in the title/body of the article and the number of images and videos included.  
+For this project, we're going to be taking a look at news article popularity data in the hopes of gaining some insight into the key factors that lead to articles accumulating shares on social media. To start out, we're going to hone in on the Entertainment data channel to do some exploration before automating our process for use with any of the channels. Once we take our subset of the data based on our channel selection, we'll initially take a look at the variables corresponding to the day of the week an article was published on, as well as the number of words in the title/body of the article and the number of images and videos included.  
   
 Once we've completed our exploratory analysis, we'll select features that we think would be a good fit in various types of models. We'll compare and evaluate the models we build on several metrics to decide which model provides the most accurate forecasts of article popularity.  
   
@@ -59,7 +59,7 @@ unlink(c(temp, temp2), force = TRUE)
 # Added this variable for automation purposes
 channel_selection <- paste0("data_channel_is_", params$type)
 
-# Changed to our channel selection variable here
+# Here we're filtering based on whatever channel was selected
 dataSubset <- data %>% as_tibble() %>%
   filter(!!as.symbol(channel_selection) == 1) %>%
   select(-c(url, timedelta, starts_with("data_channel_is_")))
@@ -126,15 +126,12 @@ g2 <- ggplot(dataSubset2, aes(x = n_tokens_title, y = shares)) +
 g3 <- ggplot(dataSubset2, aes(x = n_tokens_content, y = shares)) + 
           geom_point(color = "Green") + 
           labs(x = "Number of Words in the Content", y = "Shares", title = "Content Word Count vs Shares") 
-
-
-
-# Added some new plots for number of images, videos and links vs. shares
+# Scatter plots for number of images, videos and links compared to shares
 g4 <- ggplot(dataSubset, aes(x = num_imgs, y = shares)) + geom_point(color = "Red") + labs(x = "Number of Images", y = "Shares", title = "Images vs Shares") 
 g5 <- ggplot(dataSubset, aes(x = num_videos, y = shares)) + geom_point(color = "Aquamarine") + labs(x = "Number of Videos", y = "Shares", title = "Videos vs Shares") 
 g6 <- ggplot(dataSubset, aes(x = num_hrefs, y = shares)) + geom_point(color = "Purple") + labs(x = "Number of Links", y = "Shares", title = "Links vs Shares") 
 
-# Can put all of our scatter plots into a single grid so they're all lined up!
+# Arranging all the plots we have thus far for ease of use
 grid.arrange(g, g2, g3, g4, g5, g6, ncol = 2, nrow = 3)
 
 # Looking into plotting some of the distributions of the more obscure variables
@@ -233,7 +230,7 @@ fitMLR1 <- train(shares ~ .^2, data = train,
 ```
 
 ```{r tommy_model_l}
-# Will spice up the factors here once we finalize which variables we're using.
+# linear regression model using just the factors themselves
 fitMLR2 <- train(shares ~ ., data = train,
                 method = "lm",
                 preProcess = c("center", "scale"),
@@ -269,9 +266,9 @@ A boosted tree model is a type of ensemble learning method that functions somewh
 ```{r tommy_model_e}
 fitBT <- train(shares ~., data = train, method = 'gbm',
                preProcess = c("center", "scale"),
-               trControl = trainControl(method = "cv", number = 2),
-               tuneGrid = expand.grid(n.trees = c(25,50,100,150), interaction.depth = c(1,2,3,4),
-                                      shrinkage = 0.1, n.minobsinnode = 10),
+               trControl = trainControl(method = "cv", number = 5),
+               tuneGrid = expand.grid(n.trees = c(50,100,150,200), interaction.depth = c(1,2,3,4,5,6),
+                                      shrinkage = 0.1, n.minobsinnode = 25),
                verbose = FALSE)
 # Model printout
 fitBT

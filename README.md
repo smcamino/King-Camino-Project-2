@@ -30,8 +30,10 @@ In this repo you will find code for this project in the Project-2.Rmd file. The 
 * [Tech](Project2-tech.md)
 * [World](Project2-world.md)
 
-## Render Code
-
+## Render Code  
+  
+The code below can be run in the R Console to generate the individual reports for each of the data channels. We wrote a function that takes the channel name as an argument and generates the `.md` file passing the specified channel as a parameter. We then loop through the 6 available channels to generate all of the reports.  
+  
 `renderReport <- function(type){`  
  &emsp; &emsp; `rmarkdown::render("Project-2.Rmd",`  
  &emsp; &emsp; &emsp; `params = list(type = type),`  
