@@ -8,6 +8,8 @@ library(tidyverse)
 library(knitr)
 library(gridExtra)
 library(caret)
+library(randomForest)
+library(gbm)
 ```
 
 # Introduction
@@ -136,6 +138,13 @@ dataSubset2$day <- ifelse(dataSubset$weekday_is_monday == 1, "Monday",
         variable. Look out for potential skewness and potential data
         distributions here.
 
+    -   The boxplot in the lower right-hand corner are the boxplots of
+        shares for every day of the week. Here you can look for skewness
+        and potential outliers in the data. You can also look for
+        consistencies or inconsistencies across days, which will shed
+        light on the relationship between day of the week and number of
+        shares.
+
 -   The final image:
 
     -   Here you can see a scatterplot for each day of the week of
@@ -167,10 +176,7 @@ g4 <- ggplot(dataSubset, aes(x = num_imgs, y = shares)) + geom_point(color = "Re
 g5 <- ggplot(dataSubset, aes(x = num_videos, y = shares)) + geom_point(color = "Aquamarine") + labs(x = "Number of Videos", y = "Shares", title = "Videos vs Shares") 
 g6 <- ggplot(dataSubset, aes(x = num_hrefs, y = shares)) + geom_point(color = "Purple") + labs(x = "Number of Links", y = "Shares", title = "Links vs Shares") 
 
-# We can move this up to where we have all the package info eventually but wanted to put it here for now
 # Can put all of our scatter plots into a single grid so they're all lined up!
-library(gridExtra)
-
 grid.arrange(g, g2, g3, g4, g5, g6, ncol = 2, nrow = 3)
 ```
 
@@ -332,15 +338,20 @@ fitMLR2 <- train(shares ~ ., data = train,
                 trControl = trainControl(method = "cv", number = 5))
 ```
 
-    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may be misleading
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may
+    ## be misleading
 
-    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may be misleading
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may
+    ## be misleading
 
-    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may be misleading
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may
+    ## be misleading
 
-    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may be misleading
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may
+    ## be misleading
 
-    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may be misleading
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit may
+    ## be misleading
 
 ## Ensamble Models
 
@@ -359,14 +370,12 @@ subsetting predictors will reduce correlation of tree predictions in
 random forest models.
 
 ``` r
-# Training the Random Forest model with 2 fold cross-validation with center and scaling the data via preprocess, and considering the values of mtry of 1 to a third of number of columns in the data with tuneGrid.
-library(randomForest)
+# Training the Random Forest model with 5 fold cross-validation with center and scaling the data via preprocess, and considering the values of mtry of 1 to a third of number of columns in the data with tuneGrid.
 fitRF <- train(shares ~ ., data = train,
                 method = "rf",
                 preProcess = c("center", "scale"),
-                trControl = trainControl(method = "cv", number = 2))
-               
-               #tuneGrid = expand.grid(mtry = c(1:round(ncol(dataSubset)/3))))
+                trControl = trainControl(method = "cv", number = 5))
+                tuneGrid = expand.grid(mtry = c(1:round(ncol(dataSubset)/3)))
 
 # Print out Model
 fitRF
@@ -378,14 +387,14 @@ fitRF
     ##   52 predictor
     ## 
     ## Pre-processing: centered (52), scaled (52) 
-    ## Resampling: Cross-Validated (2 fold) 
-    ## Summary of sample sizes: 2572, 2573 
+    ## Resampling: Cross-Validated (5 fold) 
+    ## Summary of sample sizes: 4116, 4116, 4117, 4115, 4116 
     ## Resampling results across tuning parameters:
     ## 
-    ##   mtry  RMSE       Rsquared     MAE     
-    ##    2     9485.708  0.016130423  2485.182
-    ##   27    10048.634  0.010469903  2638.872
-    ##   52    10693.717  0.008058691  2683.959
+    ##   mtry  RMSE      Rsquared    MAE     
+    ##    2    4621.805  0.04631156  2240.528
+    ##   27    4750.850  0.02921073  2370.588
+    ##   52    4777.877  0.02900217  2384.912
     ## 
     ## RMSE was used to select the optimal model using the smallest value.
     ## The final value used for the model was mtry = 2.
@@ -409,7 +418,6 @@ order to increase the overall accuracy of the model. We’re making use of
 several tuning parameters here during the model building process.
 
 ``` r
-library(gbm)
 fitBT <- train(shares ~., data = train, method = 'gbm',
                preProcess = c("center", "scale"),
                trControl = trainControl(method = "cv", number = 2),
@@ -427,33 +435,33 @@ fitBT
     ## 
     ## Pre-processing: centered (52), scaled (52) 
     ## Resampling: Cross-Validated (2 fold) 
-    ## Summary of sample sizes: 2572, 2573 
+    ## Summary of sample sizes: 2573, 2572 
     ## Resampling results across tuning parameters:
     ## 
-    ##   interaction.depth  n.trees  RMSE       Rsquared     MAE     
-    ##   1                   25       9968.203  0.002740502  2553.546
-    ##   1                   50      10265.375  0.003854309  2600.724
-    ##   1                  100      10050.292  0.003604748  2565.631
-    ##   1                  150      10224.097  0.003816864  2600.126
-    ##   2                   25       9987.060  0.005627574  2546.305
-    ##   2                   50      10152.643  0.006386386  2544.981
-    ##   2                  100      10839.540  0.007733596  2630.154
-    ##   2                  150      11064.559  0.005639022  2632.613
-    ##   3                   25       9684.397  0.008363258  2519.928
-    ##   3                   50       9945.175  0.008274633  2549.028
-    ##   3                  100      10364.962  0.008501509  2595.620
-    ##   3                  150      10680.300  0.009065087  2598.264
-    ##   4                   25       9923.570  0.006543832  2562.797
-    ##   4                   50      10016.629  0.008895722  2567.560
-    ##   4                  100      10258.927  0.010454851  2564.497
-    ##   4                  150      11050.071  0.009253664  2692.212
+    ##   interaction.depth  n.trees  RMSE      Rsquared    MAE     
+    ##   1                   25      4718.696  0.02872634  2215.267
+    ##   1                   50      4716.836  0.02853289  2210.266
+    ##   1                  100      4719.339  0.03010069  2219.150
+    ##   1                  150      4718.744  0.03186952  2206.779
+    ##   2                   25      4706.800  0.03306758  2214.358
+    ##   2                   50      4727.500  0.03096270  2212.371
+    ##   2                  100      4755.369  0.03111782  2229.072
+    ##   2                  150      4773.462  0.03095361  2252.586
+    ##   3                   25      4717.706  0.03056436  2209.395
+    ##   3                   50      4743.840  0.03253625  2211.698
+    ##   3                  100      4780.321  0.03105763  2231.679
+    ##   3                  150      4804.734  0.03254617  2263.801
+    ##   4                   25      4735.572  0.02666372  2225.577
+    ##   4                   50      4778.194  0.02502933  2242.236
+    ##   4                  100      4808.697  0.02733728  2276.838
+    ##   4                  150      4840.428  0.02795427  2331.949
     ## 
     ## Tuning parameter 'shrinkage' was held constant at a value of 0.1
-    ## Tuning parameter
-    ##  'n.minobsinnode' was held constant at a value of 10
+    ## Tuning
+    ##  parameter 'n.minobsinnode' was held constant at a value of 10
     ## RMSE was used to select the optimal model using the smallest value.
-    ## The final values used for the model were n.trees = 25, interaction.depth = 3, shrinkage = 0.1
-    ##  and n.minobsinnode = 10.
+    ## The final values used for the model were n.trees = 25, interaction.depth =
+    ##  2, shrinkage = 0.1 and n.minobsinnode = 10.
 
 ``` r
 # Plot hyperparameters
@@ -494,23 +502,3 @@ print(paste0("The winning model is the ", rownames(winner)))
 ```
 
     ## [1] "The winning model is the Random Forest Model"
-
-``` r
-# Hey! I saw your render code in gitHub and thought I would make some additions. the output_file will create a new output html for every type we enter in. You don't have to use it if you don't want to, just an idea! Also, I think the render function will end up going in our README.
-
-
-renderReport <- function(type){
-  rmarkdown::render("Project-2.Rmd",
-                    params = list(type = type),
-                    output_format = "github_document",
-                    output_options = list(html_preview = FALSE),
-                    output_file = paste0("Project2-", type, ".md")
-                    )
-}
-
-channels <- c("lifestyle","entertainment","bus","socmed","tech","world")
-
-for(c in channels){
-  renderReport(c)
-}
-```
